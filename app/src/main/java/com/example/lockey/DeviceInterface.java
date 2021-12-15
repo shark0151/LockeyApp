@@ -7,15 +7,13 @@ import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 
 public interface DeviceInterface {
-    @GET("Messages/{postId}/comments")
-    Call<List<Device>> getAllComments(@Path("postId") int postId);
+    @GET("GetUserDevices/{deviceid}")
+    Call<List<Device>> getAllValuesForDevice(@Path("deviceid") int deviceid);
 
-    @POST("Messages/{postId}/comments")
-    Call<Device> saveCommentBody(@Path("postId") int postId,@Body Device comment);
-
-    @DELETE("Messages/{postId}/comments/{id}")
-    Call<Device> deleteComment(@Path("postId") int postId,@Path("id") int id);
+    @DELETE("Sensor/{id}")
+    Call<Device> deleteValuesForSensor(@Path("id") int id);
 }
