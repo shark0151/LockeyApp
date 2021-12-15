@@ -56,8 +56,6 @@ public class MainActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     theUser = response.body();
                     authorize(username, password);
-
-
                     Log.d(TAG, theUser.toString());
                 } else {
                     String message = "Problem " + response.code() + " " + response.message();
@@ -75,9 +73,8 @@ public class MainActivity extends AppCompatActivity {
     {
         if (theUser != null) {
             if(theUser.getUsername() == username && theUser.getPassword() == password) {
-                Intent gotoDevice = new Intent(this, DeviceListActivity.class);
-                gotoDevice.putExtra("USER", username);
-                startActivity(gotoDevice);
+                Log.w(TAG, "Logged in");
+
             }
         }
         else {

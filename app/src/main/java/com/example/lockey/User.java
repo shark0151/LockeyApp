@@ -2,46 +2,31 @@ package com.example.lockey;
 
 
 import androidx.annotation.NonNull;
+public class User{
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
-
-import java.io.Serializable;
-public class User implements Serializable {
-    @SerializedName("id")
-    @Expose
-    private Integer id;
-
-    @SerializedName("user")
-    @Expose
+    private int ID;
     private String Username;
-
-    @SerializedName("password")
-    @Expose
     private String Password;
-
-    @SerializedName("devices")
-    @Expose
     private String DeviceConnected;
 
     public User(){}
 
-    public User(Integer id, String user, String pass, String devices)
+    public User(int id, String username, String password, String deviceConnected)
     {
-        this.id= id;
-        this.Username=user;
-        this.Password=pass;
-        this.DeviceConnected=devices;
+        this.ID= id;
+        this.Username=username;
+        this.Password=password;
+        this.DeviceConnected=deviceConnected;
     }
 
 
 
-    public Integer getId() {
-        return id;
+    public int getId() {
+        return ID;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setId(int id) {
+        this.ID = id;
     }
 
     public String getUsername() {
@@ -69,6 +54,6 @@ public class User implements Serializable {
     @NonNull
     @Override
     public String toString() {
-        return id + ": " + Username + ", " + DeviceConnected;
+        return ID + ": " + Username + ", " + DeviceConnected;
     }
 }
