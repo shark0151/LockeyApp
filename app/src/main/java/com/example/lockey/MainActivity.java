@@ -10,10 +10,14 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.textfield.TextInputEditText;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "mainactv";
-
+    private User theUser;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,10 +43,12 @@ public class MainActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT).show(); }
         else {
 
-            if (true) {//check the password here
-                Intent gotoDevice = new Intent(this, DeviceListActivity.class);
-                gotoDevice.putExtra("USER", username);
-                startActivity(gotoDevice);
+            if (theUser != null) {
+                if(theUser.getUsername() == username && theUser.getPassword() == password) {
+                    Intent gotoDevice = new Intent(this, DeviceListActivity.class);
+                    gotoDevice.putExtra("USER", username);
+                    startActivity(gotoDevice);
+                }
             }
             else {
                 // If sign in fails, display a message to the user.
@@ -51,5 +57,27 @@ public class MainActivity extends AppCompatActivity {
                         Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    public void getUser(String username) {
+        UserInterface usr = ApiUtils.getUserService();
+        Call<User> getUserCall = usr.getUserByUsername(username);
+        getUserCall.enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (response.isSuccessful()) {
+                    theUser = response.body();
+                    Log.d(TAG, theUser.toString());
+                } else {
+                    String message = "Problem " + response.code() + " " + response.message();
+                    Log.d(TAG, message);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+                Log.e(TAG, t.getMessage());
+            }
+        });
     }
 }

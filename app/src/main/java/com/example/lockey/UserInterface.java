@@ -14,6 +14,9 @@ public interface UserInterface {
     @GET("User/{userID}")
     Call<List<User>> getUserById(@Path("userID") int userID);
 
+    @GET("User/byUsername/{username}")
+    Call<User> getUserByUsername(@Path("username") String username);
+
     @POST("User}")
     Call<List<User>> createUser(@Body User newUser);
 
