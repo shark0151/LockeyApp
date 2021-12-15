@@ -72,9 +72,11 @@ public class MainActivity extends AppCompatActivity {
     private void authorize(String username,String password)
     {
         if (theUser != null) {
-            if(theUser.getUsername() == username && theUser.getPassword() == password) {
+            if(theUser.getUsername().equals(username) && theUser.getPassword().equals(password)) {
                 Log.w(TAG, "Logged in");
-
+                Intent gotoDevice = new Intent(MainActivity.this, DeviceListActivity.class);
+                gotoDevice.putExtra("USER", username);
+                startActivity(gotoDevice);
             }
         }
         else {
