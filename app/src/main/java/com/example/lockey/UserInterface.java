@@ -12,10 +12,10 @@ import retrofit2.http.Path;
 
 public interface UserInterface {
     @GET("User/{userID}")
-    Call<List<User>> getUserById(@Path("userID") int userID);
+    Call<User> getUserById(@Path("userID") int userID);
 
-    @POST("User}")
-    Call<List<User>> createUser(@Body User newUser);
+    @POST("User")
+    Call<User> createUser(@Body User newUser);
 
     @PUT("User/AddDevice/{userid}")
     Call<User> addDeviceToUser(@Path("userid") int userid,@Body int deviceID);
