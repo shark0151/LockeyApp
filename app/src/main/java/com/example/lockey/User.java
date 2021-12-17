@@ -2,11 +2,24 @@ package com.example.lockey;
 
 
 import androidx.annotation.NonNull;
-public class User{
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
+import java.io.Serializable;
+
+public class User implements Serializable {
+    @SerializedName("ID")
+    @Expose
     private int ID;
+    @SerializedName("Username")
+    @Expose
     private String Username;
+    @SerializedName("Password")
+    @Expose
     private String Password;
+    @SerializedName("DeviceConnected")
+    @Expose
     private String DeviceConnected;
 
     public User(){}
