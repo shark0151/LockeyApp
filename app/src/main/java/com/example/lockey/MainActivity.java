@@ -54,9 +54,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<User> call, Response<User> response) {
                 if (response.isSuccessful()) {
-                    theUser = response.body();
-                    authorize(username, password);
-                    Log.d(TAG, theUser.toString());
+                    if(response.body().getUsername() != null) {
+                        theUser = response.body();
+                        authorize(username, password);
+                        Log.d(TAG, theUser.toString());
+                    }
+                    else{
+                        Log.w(TAG, "user not found");
+                        Toast.makeText(MainActivity.this, "Authentication failed.",
+                                Toast.LENGTH_SHORT).show();
+                    }
                 } else {
                     String message = "Problem " + response.code() + " " + response.message();
                     Log.d(TAG, message);
@@ -81,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         }
         else {
             // If sign in fails, display a message to the user.
-            Log.w(TAG, "signInWithEmail:failure");
+            Log.w(TAG, "wrong password");
             Toast.makeText(MainActivity.this, "Authentication failed.",
                     Toast.LENGTH_SHORT).show();
         }
