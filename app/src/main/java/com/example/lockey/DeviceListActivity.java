@@ -21,6 +21,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -31,7 +32,7 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 public class DeviceListActivity extends AppCompatActivity {
-    private String MACaddress;
+    private String newMACaddress;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,32 +43,63 @@ public class DeviceListActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(DeviceListActivity.this);
-                builder.setTitle("MAC address").setMessage("Input device's MAC address!");
-
-// Set up the input
-                final EditText input = new EditText(DeviceListActivity.this);
-// Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-                input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-                builder.setView(input);
-
-// Set up the buttons
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        MACaddress = input.getText().toString();
-                        //Hey Alex! Here is where you have to add the DeviceID to the database. xoxo Gossip Girl
-                    }
-                });
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-
-                builder.show();
+                MACdialog();
             }
         });
+    }
+
+    private void AddDeviceToUser(String mac){
+        //You guys do your thing here
+    }
+
+    //Temporary popup for MAC address input
+    private void MACdialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(DeviceListActivity.this);
+        builder.setTitle("MAC address").setMessage("Input device's MAC address!");
+
+        // Set up the input
+        final EditText input = new EditText(DeviceListActivity.this);
+        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        builder.setView(input);
+
+        // Set up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                newMACaddress = input.getText().toString();
+                AddDeviceToUser(newMACaddress);
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
+
+    private void BluetoothAdd(){
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (!bluetoothAdapter.isEnabled()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, 0);
+        }
+        Set<BluetoothDevice> devices = bluetoothAdapter.getBondedDevices();
+        if (devices != null) {
+            Boolean found=false;
+            for (BluetoothDevice device : devices) {
+                if (device.getName().contains("Lockey")) {
+                    AddDeviceToUser(device.getAddress());
+                    found=true;
+                    break;
+                }
+            }
+            if (!found){
+                Toast.makeText(DeviceListActivity.this, "Device not found", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }
