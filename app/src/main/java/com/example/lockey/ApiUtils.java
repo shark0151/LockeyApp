@@ -8,7 +8,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class ApiUtils {
     private ApiUtils() {}
 
-    static String API_BASE_URL = "https://lockeyapi.azurewebsites.net/";
+    static String API_BASE_URL = "https://lockeysuperserverdeluxe.azurewebsites.net";
 
     public static DeviceInterface getDeviceService() {
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
