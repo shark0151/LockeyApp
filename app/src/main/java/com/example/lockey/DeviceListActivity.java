@@ -1,37 +1,28 @@
 package com.example.lockey;
 
-import androidx.annotation.Nullable;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.Bundle;
+import android.text.InputType;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.Activity;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.companion.AssociationRequest;
-import android.companion.BluetoothDeviceFilter;
-import android.companion.CompanionDeviceManager;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentSender;
-import android.os.Bundle;
-import android.os.ParcelUuid;
-import android.text.InputType;
-import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.Toast;
-
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
-import java.util.ArrayList;
 import java.util.Set;
-import java.util.UUID;
-import java.util.regex.Pattern;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class DeviceListActivity extends AppCompatActivity {
+    private static final String TAG = "DeviceActivity";
     private String newMACaddress;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +41,23 @@ public class DeviceListActivity extends AppCompatActivity {
 
     private void AddDeviceToUser(String mac){
         //You guys do your thing here
+        Intent intent = getIntent();
+        int userid = intent.getIntExtra("userID",0);
+        UserInterface usr = ApiUtils.getUserService();
+
+        User x = new User(userid,"no","no",mac);
+        Call<User> addDevice = usr.addDeviceToUser(x);
+        addDevice.enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+
+            }
+        });
     }
 
     //Temporary popup for MAC address input

@@ -73,6 +73,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<User> call, Throwable t) {
                 Log.e(TAG, t.getMessage());
+                Toast.makeText(MainActivity.this, "Authentication failed.",
+                        Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -82,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
             if(theUser.getUsername().equals(username) && theUser.getPassword().equals(password)) {
                 Log.w(TAG, "Logged in");
                 Intent gotoDevice = new Intent(MainActivity.this, DeviceListActivity.class);
-                gotoDevice.putExtra("USER", username);
+                gotoDevice.putExtra("userID", theUser.getId());
                 startActivity(gotoDevice);
             }
         }
