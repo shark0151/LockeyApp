@@ -86,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent gotoDevice = new Intent(MainActivity.this, DeviceListActivity.class);
                 gotoDevice.putExtra("userID", theUser.getId());
                 startActivity(gotoDevice);
+                MainActivity.this.finish();
             }
         }
         else {

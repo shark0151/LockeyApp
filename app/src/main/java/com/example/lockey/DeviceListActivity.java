@@ -9,14 +9,15 @@ import android.text.InputType;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
-
+import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.Set;
-
+import android.view.Menu;
+import android.view.MenuItem;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -28,6 +29,8 @@ public class DeviceListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_device_list);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         //Add button
         FloatingActionButton fab = findViewById(R.id.fab);
@@ -37,6 +40,26 @@ public class DeviceListActivity extends AppCompatActivity {
                 MACdialog();
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_timeline, menu);
+        menu.findItem(R.id.sign_out_button).setTitle("Log Out");
+        return super.onCreateOptionsMenu(menu);
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.sign_out_button:
+                Intent gotoDevice = new Intent(DeviceListActivity.this, MainActivity.class);
+                startActivity(gotoDevice);
+                DeviceListActivity.this.finish();
+                finish();
+                return true; // true: menu processing done, no further actions
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     private void AddDeviceToUser(String mac){
