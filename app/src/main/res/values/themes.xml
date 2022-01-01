@@ -17,7 +17,7 @@
         <item name="android:editTextColor">@color/white</item>
     </style>
     <style name="Theme.Lockey.NoActionBar">
-        <item name="windowActionBar">false</item>
+        <item name="windowActionBar">true</item>
         <item name="windowNoTitle">true</item>
     </style>
     <style name="Theme.Lockey.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
