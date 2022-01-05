@@ -32,7 +32,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -162,7 +161,8 @@ public class DeviceListActivity extends AppCompatActivity {
                 public void onResponse(Call<List<Device>> call, Response<List<Device>> response) {
                     if (response.isSuccessful()) {
                         List<Device> allDeviceReadings = response.body();
-                        list.add(allDeviceReadings.get(0));
+                        if(!allDeviceReadings.isEmpty())
+                            list.add(allDeviceReadings.get(0));
                         Log.d("getallDevices", allDeviceReadings.toString());
                     } else {
                         String message = "Problem " + response.code() + " " + response.message();

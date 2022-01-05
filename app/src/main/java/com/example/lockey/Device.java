@@ -7,8 +7,6 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
-import java.sql.Date;
-import java.sql.Time;
 
 public class Device implements Serializable {
     @SerializedName("ID")
@@ -19,11 +17,11 @@ public class Device implements Serializable {
     private Boolean IsLocked;
     @SerializedName("Time")
     @Expose
-    private Date Time;
+    private String Time;
 
     public Device(){}
 
-    public Device(String id, Boolean isLocked, Date time)
+    public Device(String id, Boolean isLocked, String time)
     {
         this.Id= id;
         this.IsLocked=isLocked;
@@ -48,11 +46,11 @@ public class Device implements Serializable {
         this.IsLocked = isLocked;
     }
 
-    public Date getTime() {
+    public String getTime() {
         return Time;
     }
 
-    public void setTime(Date time) {
+    public void setTime(String time) {
         this.Time = time;
     }
 
