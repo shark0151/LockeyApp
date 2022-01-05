@@ -94,7 +94,7 @@ public class RegisterActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     Log.w(TAG, "Logged in");
                     Intent gotoDevice = new Intent(RegisterActivity.this, DeviceListActivity.class);
-                    gotoDevice.putExtra("USER", theUser.getUsername());
+                    gotoDevice.putExtra("USER", theUser.getId());
                     startActivity(gotoDevice);
                 } else {
                     String message = "Problem " + response.code() + " " + response.message();

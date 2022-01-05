@@ -7,67 +7,61 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
+import java.sql.Date;
+import java.sql.Time;
+
 public class Device implements Serializable {
-    @SerializedName("id")
+    @SerializedName("ID")
     @Expose
-    private Integer id;
-    @SerializedName("content")
+    private String Id;
+    @SerializedName("IsLocked")
     @Expose
-    private String content;
-    @SerializedName("user")
+    private Boolean IsLocked;
+    @SerializedName("Time")
     @Expose
-    private String user;
-    @SerializedName("totalComments")
-    @Expose
-    private Integer totalComments;
+    private Date Time;
+
     public Device(){}
 
-    public Device(Integer id, String content, String user, Integer totalComments)
+    public Device(String id, Boolean isLocked, Date time)
     {
-        this.id= id;
-        this.content=content;
-        this.user=user;
-        this.totalComments=totalComments;
+        this.Id= id;
+        this.IsLocked=isLocked;
+        this.Time=time;
     }
 
 
 
-    public Integer getId() {
-        return id;
+    public String getId() {
+        return Id;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setId(String  id) {
+        this.Id = id;
     }
 
-    public String getContent() {
-        return content;
+    public Boolean getIsLocked() {
+        return IsLocked;
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public void setIsLocked(Boolean isLocked) {
+        this.IsLocked = isLocked;
     }
 
-    public String getUser() {
-        return user;
+    public Date getTime() {
+        return Time;
     }
 
-    public void setUser(String user) {
-        this.user = user;
+    public void setTime(Date time) {
+        this.Time = time;
     }
 
-    public Integer getTotalComments() {
-        return totalComments;
-    }
 
-    public void setTotalComments(Integer totalComments) {
-        this.totalComments = totalComments;
-    }
 
     @NonNull
     @Override
     public String toString() {
-        return id + ": " + content + " " + user + ", " + totalComments;
+        return Id + ": " + IsLocked + " " + Time;
     }
 
 

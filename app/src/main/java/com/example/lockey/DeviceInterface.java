@@ -11,9 +11,9 @@ import retrofit2.http.PUT;
 import retrofit2.http.Path;
 
 public interface DeviceInterface {
-    @GET("GetUserDevices/{deviceid}")
-    Call<List<Device>> getAllValuesForDevice(@Path("deviceid") int deviceid);
+    @GET("Sensor/{id}")
+    Call<List<Device>> getAllValuesForDevice(@Path("id") String deviceid);
 
     @DELETE("Sensor/{id}")
-    Call<Device> deleteValuesForSensor(@Path("id") int id);
+    Call<Device> deleteValuesForSensor(@Path("id") String id);
 }

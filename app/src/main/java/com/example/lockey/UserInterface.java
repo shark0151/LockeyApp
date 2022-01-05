@@ -1,5 +1,7 @@
 package com.example.lockey;
 
+import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -27,4 +29,7 @@ public interface UserInterface {
 
     @DELETE("User/{userID}")
     Call<User> removeUser(@Path("userID") int userID);
+
+    @GET("User/GetUserDevices/{userid}")
+    Call<List<String>> getDevicesForUser(@Path("userid") int userID);
 }
