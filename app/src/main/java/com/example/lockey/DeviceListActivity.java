@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -166,6 +165,7 @@ public class DeviceListActivity extends AppCompatActivity {
                         if(!allDeviceReadings.isEmpty())
                             list.add(allDeviceReadings.get(0));
                         Log.d("getallDevices", allDeviceReadings.toString());
+                        populateRecyclerView();
                     } else {
                         String message = "Problem " + response.code() + " " + response.message();
                         Log.d("getallDevices", message);
@@ -180,11 +180,11 @@ public class DeviceListActivity extends AppCompatActivity {
         }
 
 
-        populateRecyclerView(list);
-    }
-    private void populateRecyclerView(List<Device> allDevices) {
-        RecyclerView recyclerView = findViewById(R.id.mainRecyclerView);
 
+    }
+    private void populateRecyclerView() {
+        List<Device> allDevices = list;
+        RecyclerView recyclerView = findViewById(R.id.mainRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         lockeyAdapter = new RecyclerViewSimpleAdapter<>(allDevices);
         recyclerView.setAdapter(lockeyAdapter);
