@@ -67,7 +67,6 @@ public class DeviceListActivity extends AppCompatActivity {
         //setSupportActionBar(toolbar);
         BluetoothAdd();
         getAndShowDevices();
-        getAndShowDevices();
         //Add button
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
