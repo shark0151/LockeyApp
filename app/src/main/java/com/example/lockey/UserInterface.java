@@ -31,5 +31,5 @@ public interface UserInterface {
     Call<User> removeUser(@Path("userID") int userID);
 
     @GET("User/GetUserDevices/{userid}")
-    Call<List<String>> getDevicesForUser(@Path("userid") int userID);
+    Call<List<String>> getDevicesForUser(@Path("userid") int userid);
 }

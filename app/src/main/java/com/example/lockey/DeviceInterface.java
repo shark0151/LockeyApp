@@ -12,7 +12,7 @@ import retrofit2.http.Path;
 
 public interface DeviceInterface {
     @GET("Sensor/{id}")
-    Call<List<Device>> getAllValuesForDevice(@Path("id") String deviceid);
+    Call<List<Device>> getAllValuesForDevice(@Path("id") String id);
 
     @DELETE("Sensor/{id}")
     Call<Device> deleteValuesForSensor(@Path("id") String id);

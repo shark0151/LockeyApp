@@ -32,6 +32,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -57,7 +58,7 @@ public class DeviceListActivity extends AppCompatActivity {
     private static final String TAG = "DeviceActivity";
     private String newMACaddress;
     private RecyclerViewSimpleAdapter lockeyAdapter;
-    List<Device> list= Collections.emptyList();
+    List<Device> list= new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +67,7 @@ public class DeviceListActivity extends AppCompatActivity {
         //Toolbar toolbar = findViewById(R.id.toolbar);
         //setSupportActionBar(toolbar);
         BluetoothAdd();
+        getAndShowDevices();
         getAndShowDevices();
         //Add button
         FloatingActionButton fab = findViewById(R.id.fab);
