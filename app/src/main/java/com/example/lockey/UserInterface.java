@@ -24,8 +24,8 @@ public interface UserInterface {
     @Headers({"Content-Type: application/json"})
     @PUT("User/AddDevice")
     Call<User> addDeviceToUser(@Body User mac);
-    @PUT("User/RemoveDevice/{userid}")
-    Call<User> removeDeviceToUser(@Path("userid") int userid,@Body String mac);
+    @PUT("User/RemoveDevice")
+    Call<User> removeDeviceToUser(@Body User usr);
 
     @DELETE("User/{userID}")
     Call<User> removeUser(@Path("userID") int userID);

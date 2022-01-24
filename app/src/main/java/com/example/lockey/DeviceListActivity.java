@@ -1,5 +1,8 @@
 package com.example.lockey;
 
+import static com.example.lockey.App.channel_Id;
+
+import android.app.Notification;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -8,20 +11,26 @@ import android.content.Intent;
 import android.graphics.Canvas;
 import android.net.wifi.WifiInfo;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewDebug;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.appcompat.widget.Toolbar;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -35,7 +44,11 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
+import java.util.concurrent.Delayed;
+import java.util.concurrent.TimeUnit;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 import retrofit2.Call;
@@ -53,20 +66,24 @@ public class DeviceListActivity extends AppCompatActivity {
     WifiInfo wifiInfo;
     String ssid;
     String psk;
-
+    private NotificationManagerCompat manager;
+    private static final int PERIOD=5000;
+    List<Device> listOld= new ArrayList<>();
     private static final String TAG = "DeviceActivity";
     private String newMACaddress;
     private RecyclerViewSimpleAdapter lockeyAdapter;
     List<Device> list= new ArrayList<>();
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_device_list);
-        //Toolbar toolbar = findViewById(R.id.toolbar);
-        //setSupportActionBar(toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         BluetoothAdd();
-        getAndShowDevices();
+
         //Add button
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -75,7 +92,18 @@ public class DeviceListActivity extends AppCompatActivity {
                 MACdialog();
             }
         });
+        manager=NotificationManagerCompat.from(this);
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                getAndShowDevices();
+                list.clear();
+            }
+        }, 0, 10000);//wait 0 ms before doing the action and do it every 10000ms (10second)
+
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -83,6 +111,7 @@ public class DeviceListActivity extends AppCompatActivity {
         menu.findItem(R.id.sign_out_button).setTitle("Log Out");
         return super.onCreateOptionsMenu(menu);
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -97,7 +126,17 @@ public class DeviceListActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
+    class Runnable implements java.lang.Runnable {
 
+        @Override
+        public void run() {
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
     private void AddDeviceToUser(String mac) {
         //You guys do your thing here
         Intent intent = getIntent();
@@ -110,6 +149,7 @@ public class DeviceListActivity extends AppCompatActivity {
             public void onResponse(Call<User> call, Response<User> response) {
                 if(response.isSuccessful()) {
                     Log.w(TAG, "Succesfully added");
+                    list.clear();
                     getAndShowDevices();
                 }
                 else
@@ -161,8 +201,20 @@ public class DeviceListActivity extends AppCompatActivity {
                 public void onResponse(Call<List<Device>> call, Response<List<Device>> response) {
                     if (response.isSuccessful()) {
                         List<Device> allDeviceReadings = response.body();
-                        if(!allDeviceReadings.isEmpty())
-                            list.add(allDeviceReadings.get(0));
+                        if(!allDeviceReadings.isEmpty()) {
+                            Log.d("Notif", listOld.toString());
+                            for (Device d:
+                                    listOld) {
+                                if (allDeviceReadings.get(allDeviceReadings.size() - 1).getId().equals(d.getId()) && !allDeviceReadings.get(allDeviceReadings.size() - 1).getTime().equals(d.getTime()) && allDeviceReadings.get(allDeviceReadings.size()-1).getIsLocked().equals(false))
+                                {
+                                    Notification(d.getId());
+                                    listOld.clear();
+                                    break;
+                                }
+                            }
+                            list.add(allDeviceReadings.get(allDeviceReadings.size()-1));
+
+                        }
                         Log.d("getallDevices", allDeviceReadings.toString());
                         populateRecyclerView();
                     } else {
@@ -179,10 +231,18 @@ public class DeviceListActivity extends AppCompatActivity {
         }
 
 
-
+    }
+    private void Notification(String id){
+        Notification notification = new Notification.Builder(this, channel_Id)
+                .setSmallIcon(R.drawable.ic_lock)
+                .setContentTitle("Unlocked")
+                .setContentText("Device " +id + " is unlocked")
+                .build();
+        manager.notify(1, notification);
     }
     private void populateRecyclerView() {
         List<Device> allDevices = list;
+        listOld.addAll(list);
         RecyclerView recyclerView = findViewById(R.id.mainRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         lockeyAdapter = new RecyclerViewSimpleAdapter<>(allDevices);
@@ -207,12 +267,15 @@ public class DeviceListActivity extends AppCompatActivity {
                 // Row is swiped from recycler view
                 final int position = viewHolder.getAdapterPosition();
                 if (position >= 0) {
-                    //String id = ((RecyclerViewSimpleAdapter) recyclerView.getAdapter()).getItem(position).getId();
+                    String id = ((RecyclerViewSimpleAdapter) recyclerView.getAdapter()).getItem(position).getId();
                     Intent intent = getIntent();
                     int userid = intent.getIntExtra("userID", 0);
-                    //deleteDeviceForUser(userid, id);
+                    deleteDeviceForUser(userid, id);
                 }
-                // remove it from adapter
+                //list.clear();
+                list.remove(((RecyclerViewSimpleAdapter) recyclerView.getAdapter()).getItem(position));
+                lockeyAdapter.notifyItemRemoved(position);
+
             }
 
 
@@ -225,7 +288,7 @@ public class DeviceListActivity extends AppCompatActivity {
 
                         new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
                                 .addSwipeLeftBackgroundColor(ContextCompat.getColor(DeviceListActivity.this, R.color.design_default_color_error))
-                                //.addSwipeLeftActionIcon()
+                                .addSwipeLeftActionIcon(R.drawable.ic_delete)
                                 .create()
                                 .decorate();
                         super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
@@ -237,10 +300,11 @@ public class DeviceListActivity extends AppCompatActivity {
         // attaching the touch helper to recycler view
         new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(recyclerView);
     }
-    private void deleteDeviceForUser(int userid, String position) {
+    private void deleteDeviceForUser(int userid, String deviceId) {
         UserInterface mess = ApiUtils.getUserService();
-        Call<User> deleteMessage = mess.removeDeviceToUser(userid,position);
-        deleteMessage.enqueue(new Callback<User>() {
+        User tbd= new User(userid, null, null, deviceId);
+        Call<User> deleteDevice = mess.removeDeviceToUser(tbd);
+        deleteDevice.enqueue(new Callback<User>() {
             @Override
             public void onResponse(Call<User> call, Response<User> response) {
                 if (response.isSuccessful()) {
@@ -382,4 +446,5 @@ public class DeviceListActivity extends AppCompatActivity {
             }
         }
     }
+
 }

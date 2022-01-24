@@ -2,22 +2,10 @@ package com.example.lockey;
 
 
 import android.content.Context;
-import android.content.Intent;
 
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Outline;
-import android.graphics.Paint;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.Shape;
 import android.util.Log;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewOutlineProvider;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -34,9 +22,9 @@ public class RecyclerViewSimpleAdapter<T> extends RecyclerView.Adapter<RecyclerV
     private final List<T> data;
     private OnItemClickListener<T> onItemClickListener;
     private final int viewId = View.generateViewId();
-    private final int userId = View.generateViewId();
-    private final int commentId = View.generateViewId();
-    private final int comComId = View.generateViewId();
+    private final int deviceid = View.generateViewId();
+    private final int status = View.generateViewId();
+    private final int time = View.generateViewId();
 
     public RecyclerViewSimpleAdapter(List<T> data) {
         this.data = data;
@@ -76,17 +64,17 @@ public class RecyclerViewSimpleAdapter<T> extends RecyclerView.Adapter<RecyclerV
 
         TextView username = new TextView(context);
         username.setTextSize(16);
-        username.setId(userId);
+        username.setId(deviceid);
         username.setLayoutParams(params);
         username.setTextColor(ContextCompat.getColor(context,R.color.userTextColor));
 
         TextView userComment = new TextView(context);
-        userComment.setId(commentId);
+        userComment.setId(status);
         userComment.setLayoutParams(params);
         userComment.setTextColor(ContextCompat.getColor(context,R.color.PostColor));
 
         TextView commentComments = new TextView(context);
-        commentComments.setId(comComId);
+        commentComments.setId(time);
         commentComments.setLayoutParams(params);
         commentComments.setTextColor(ContextCompat.getColor(context,R.color.CommentColor));
         commentComments.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_END);
@@ -109,9 +97,14 @@ public class RecyclerViewSimpleAdapter<T> extends RecyclerView.Adapter<RecyclerV
         Device dataItem = (Device) data.get(position);
         Log.d(LOG_TAG, "onBindViewHolder " + data.toString());
         //holder.view.setText(dataItem.getUser());
-        ((TextView)holder.itemView.findViewById(userId)).setText(dataItem.getId());
-        ((TextView)holder.itemView.findViewById(commentId)).setText(dataItem.getIsLocked().toString());
-        ((TextView)holder.itemView.findViewById(comComId)).setText("Status: " +dataItem.getTime().toString());
+        String displayText;
+        ((TextView)holder.itemView.findViewById(deviceid)).setText(dataItem.getId());
+        if (dataItem.getIsLocked())
+            displayText="Locked";
+        else
+            displayText="Unlocked";
+        ((TextView)holder.itemView.findViewById(status)).setText(displayText);
+        ((TextView)holder.itemView.findViewById(time)).setText("Time: " +dataItem.getTime());
         Log.d(LOG_TAG, "onBindViewHolder called " + position);
     }
 
@@ -122,9 +115,9 @@ public class RecyclerViewSimpleAdapter<T> extends RecyclerView.Adapter<RecyclerV
         return count;
     }
 
-    public User getItem(int position)
+    public Device getItem(int position)
     {
-        return (User) data.get(position);
+        return (Device) data.get(position);
     }
 
     void setOnItemClickListener(OnItemClickListener<T> itemClickListener) {
