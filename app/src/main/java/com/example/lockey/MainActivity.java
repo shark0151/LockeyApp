@@ -85,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.w(TAG, "Logged in");
                 Intent gotoDevice = new Intent(MainActivity.this, DeviceListActivity.class);
                 gotoDevice.putExtra("userID", theUser.getId());
+                gotoDevice.putExtra("userPassword", theUser.getPassword());
                 startActivity(gotoDevice);
                 MainActivity.this.finish();
             }

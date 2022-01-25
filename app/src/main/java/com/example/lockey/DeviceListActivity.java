@@ -22,8 +22,10 @@ import android.view.View;
 import android.view.ViewDebug;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.NumberPicker;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 import androidx.appcompat.widget.Toolbar;
 
@@ -49,6 +51,8 @@ import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 import retrofit2.Call;
@@ -71,9 +75,13 @@ public class DeviceListActivity extends AppCompatActivity {
     List<Device> listOld= new ArrayList<>();
     private static final String TAG = "DeviceActivity";
     private String newMACaddress;
+    private String delete_password;
     private RecyclerViewSimpleAdapter lockeyAdapter;
+    private long notifTimer = 0L;
+    private long stopTime;
+    long startTime;
     List<Device> list= new ArrayList<>();
-
+    public int period=10000;
 
 
     @Override
@@ -100,7 +108,7 @@ public class DeviceListActivity extends AppCompatActivity {
                 getAndShowDevices();
                 list.clear();
             }
-        }, 0, 10000);//wait 0 ms before doing the action and do it every 10000ms (10second)
+        }, 0, period);//wait 0 ms before doing the action and do it every 10000ms (10second) or imputed notification timer
 
     }
 
@@ -108,24 +116,63 @@ public class DeviceListActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_timeline, menu);
-        menu.findItem(R.id.sign_out_button).setTitle("Log Out");
         return super.onCreateOptionsMenu(menu);
+
     }
 
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.notification_timer:
+                SetTimerDialog();
+                return true;
             case R.id.sign_out_button:
-                Intent gotoDevice = new Intent(DeviceListActivity.this, MainActivity.class);
-                startActivity(gotoDevice);
+                Intent gotoLogIn= new Intent(DeviceListActivity.this, MainActivity.class);
+                startActivity(gotoLogIn);
                 DeviceListActivity.this.finish();
                 finish();
                 return true; // true: menu processing done, no further actions
+            case R.id.delete_account_button:
+                DeleteAccountDialog();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
+
+    private void SetTimerDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(DeviceListActivity.this);
+        builder.setTitle("Notification delay").setMessage("Set after how meny minutes you want to receive a notification about your door being unlocked");
+        NumberPicker input = new NumberPicker(DeviceListActivity.this);
+        input.setMaxValue(30);
+        input.setMinValue(1);
+        // Set up the input
+       // final EditText input = new EditText(DeviceListActivity.this);
+        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+        //input.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        builder.setView(input);
+
+        // Set up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                notifTimer= (long) input.getValue() *60000;
+                Toast.makeText(DeviceListActivity.this, "Notification timer set to "+input.getValue()+" minutes",
+                            Toast.LENGTH_SHORT).show();
+
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
+
     class Runnable implements java.lang.Runnable {
 
         @Override
@@ -203,12 +250,11 @@ public class DeviceListActivity extends AppCompatActivity {
                         List<Device> allDeviceReadings = response.body();
                         if(!allDeviceReadings.isEmpty()) {
                             Log.d("Notif", listOld.toString());
+                            startTime=SystemClock.uptimeMillis();
                             for (Device d:
                                     listOld) {
-                                if (allDeviceReadings.get(allDeviceReadings.size() - 1).getId().equals(d.getId()) && !allDeviceReadings.get(allDeviceReadings.size() - 1).getTime().equals(d.getTime()) && allDeviceReadings.get(allDeviceReadings.size()-1).getIsLocked().equals(false))
-                                {
-                                    Notification(d.getId());
-                                    listOld.clear();
+                                if (allDeviceReadings.get(allDeviceReadings.size() - 1).getId().equals(d.getId()) && !allDeviceReadings.get(allDeviceReadings.size() - 1).getTime().equals(d.getTime()) && allDeviceReadings.get(allDeviceReadings.size()-1).getIsLocked().equals(false)) {
+                                    CheckTimer(allDeviceReadings.get(allDeviceReadings.size() - 1));
                                     break;
                                 }
                             }
@@ -231,6 +277,32 @@ public class DeviceListActivity extends AppCompatActivity {
         }
 
 
+    }
+    private void CheckTimer(Device d)
+    {
+        if (notifTimer>0L) {
+
+            new java.util.Timer().schedule(
+                    new java.util.TimerTask() {
+                        @Override
+                        public void run() {
+                            stopTime = SystemClock.uptimeMillis();
+                            Predicate<Device> filterPredicate = item -> d.getId().equals(item.getId());
+                            List<Device> toCompare= (List<Device>) listOld.stream().filter(filterPredicate).collect(Collectors.toList());
+                            Log.d("CHKTIMER", toCompare.toString());
+                            if ( !toCompare.get(toCompare.size()-1).getIsLocked()){
+                                Notification(d.getId());
+                                listOld.clear();
+                            }
+                        }
+                    },
+                    notifTimer
+            );
+
+        }
+        else
+            Notification(d.getId());
+        listOld.clear();
     }
     private void Notification(String id){
         Notification notification = new Notification.Builder(this, channel_Id)
@@ -322,7 +394,68 @@ public class DeviceListActivity extends AppCompatActivity {
             }
         });
     }
+    private void DeleteAccountDialog () {
+        AlertDialog.Builder builder = new AlertDialog.Builder(DeviceListActivity.this);
+        builder.setTitle("Delete account").setMessage("Enter your password to delete your account");
 
+        // Set up the input
+        final EditText input = new EditText(DeviceListActivity.this);
+        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+        input.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        builder.setView(input);
+
+        // Set up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                delete_password = input.getText().toString();
+                Intent intent = getIntent();
+                String userPassword = intent.getStringExtra("userPassword");
+                if (userPassword.equals(delete_password))
+                    DeleteUser();
+                else
+                {
+                    Log.e(TAG, delete_password + " :: " + userPassword);
+                    Toast.makeText(DeviceListActivity.this, "Password incorrect",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
+    private void DeleteUser() {
+        UserInterface mess = ApiUtils.getUserService();
+        Intent intent = getIntent();
+        int userid = intent.getIntExtra("userID", 0);
+        Call<User> deleteUser = mess.removeUser(userid);
+        deleteUser.enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (response.isSuccessful()) {
+                    Intent gotoLogIn = new Intent(DeviceListActivity.this, MainActivity.class);
+                    startActivity(gotoLogIn);
+                    DeviceListActivity.this.finish();
+                    Log.d("User", "Deleted ");
+                    Toast.makeText(DeviceListActivity.this, "User account has been deleted :(", Toast.LENGTH_SHORT).show();
+                } else {
+                    String message = "Problem " + response.code() + " " + response.message();
+                    Log.d("DeleteUser", message);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+                Log.e("deleteUser", t.getMessage());
+            }
+        });
+    }
     //Temporary popup for MAC address input
     private void MACdialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(DeviceListActivity.this);
@@ -413,9 +546,9 @@ public class DeviceListActivity extends AppCompatActivity {
                     break;
                 }
             }
-            if (!found) {
-                Toast.makeText(DeviceListActivity.this, "Device not found", Toast.LENGTH_SHORT).show();
-            }
+            //if (!found) {
+                //Toast.makeText(DeviceListActivity.this, "Device not found", Toast.LENGTH_SHORT).show();
+            //}
         }
 
 

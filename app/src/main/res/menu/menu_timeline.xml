@@ -5,5 +5,15 @@
         android:id="@+id/sign_out_button"
         android:orderInCategory="1"
         android:title="Sign Out"
-        app:showAsAction="always" />
+        app:showAsAction="collapseActionView" />
+    <item
+        android:id="@+id/delete_account_button"
+        android:orderInCategory="1"
+        android:title="Delete account"
+        app:showAsAction="collapseActionView" />
+    <item
+        android:id="@+id/notification_timer"
+        android:orderInCategory="1"
+        android:title="Set notification timer"
+        app:showAsAction="collapseActionView" />
 </menu>
